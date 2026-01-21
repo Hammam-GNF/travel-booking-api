@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
 use App\Services\BookingService;
 use Illuminate\Http\Request;
 
@@ -27,12 +28,17 @@ class BookingController extends Controller
         ]);
     }
 
-    public function myBookings()
+    public function myBookings(Request $request)
     {
+        $bookings = Booking::with('travel')
+        ->where('user_id', $request->user()->id)
+        ->latest()
+        ->get();
+
         return response()->json([
             'success' => true,
             'message' => 'List of my bookings',
-            'data' => [],
+            'data' => $bookings,
         ]);
     }
 }

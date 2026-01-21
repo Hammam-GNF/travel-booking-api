@@ -21,6 +21,9 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
     Route::post('/travels', [AdminTravelController::class, 'store']);
     Route::put('/travels/{travel}', [AdminTravelController::class, 'update']);
     Route::delete('/travels/{travel}', [AdminTravelController::class, 'destroy']);
+
+    Route::put('/bookings/{booking}/confirm', [AdminBookingController::class, 'confirm']);
+    Route::put('/bookings/{booking}/cancel', [AdminBookingController::class, 'cancel']);
 });
 
 Route::middleware(['auth:api', 'role:user'])->group(function () {

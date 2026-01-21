@@ -33,13 +33,14 @@ class AdminTravelController extends Controller
     public function update(Request $request, Travel $travel, TravelService $service)
     {
         $data = $request->validate([
-            'name' => 'required|string',
-            'origin' => 'required|string',
-            'destination' => 'required|string',
-            'departure_date' => 'required|date',
-            'departure_time' => 'required',
-            'price' => 'required|numeric|min:0',
-            'is_active' => 'boolean',
+            'name' => 'sometimes|string|max:255',
+            'origin' => 'sometimes|string|max:100',
+            'destination' => 'sometimes|string|max:100',
+            'departure_date' => 'sometimes|date',
+            'departure_time' => 'sometimes',
+            'price' => 'sometimes|integer|min:0',
+            'quota' => 'sometimes|integer|min:1',
+            'is_active' => 'sometimes|boolean',
         ]);
 
         $travel = $service->update($travel, $data);
