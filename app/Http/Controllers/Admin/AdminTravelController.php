@@ -3,16 +3,62 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Travel;
+use App\Services\TravelService;
 use Illuminate\Http\Request;
 
 class AdminTravelController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request, TravelService $service)
     {
+        $data = $request->validate([
+            'name' => 'required|string',
+            'origin' => 'required|string',
+            'destination' => 'required|string',
+            'departure_date' => 'required|date',
+            'departure_time' => 'required',
+            'price' => 'required|numeric|min:0',
+            'quota' => 'required|integer|min:1',
+        ]);
+
+        $travel = $service->create($data);
+
         return response()->json([
             'success' => true,
             'message' => 'Travel created',
-            'data' => [],
+            'data' => $travel,
+        ]);
+    }
+
+    public function update(Request $request, Travel $travel, TravelService $service)
+    {
+        $data = $request->validate([
+            'name' => 'required|string',
+            'origin' => 'required|string',
+            'destination' => 'required|string',
+            'departure_date' => 'required|date',
+            'departure_time' => 'required',
+            'price' => 'required|numeric|min:0',
+            'is_active' => 'boolean',
+        ]);
+
+        $travel = $service->update($travel, $data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Travel updated',
+            'data' => $travel,
+        ]);
+    }
+
+    public function destroy(Travel $travel, TravelService $service)
+    {
+        $service->deactivate($travel);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Travel deactivated',
+            'data' => null,
         ]);
     }
 }
