@@ -33,6 +33,9 @@ class AdminBookingController extends Controller
 
         $booking->update([
             'status' => BookingStatus::CONFIRMED,
+            'paid_at' => now(),
+            'confirmed_at' => now(),
+            'completed_at' => now(),
         ]);
 
         return response()->json([
