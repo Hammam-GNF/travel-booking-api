@@ -66,14 +66,23 @@ class AuthController extends Controller
 
     public function me()
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'This is your profile right now',
-            'data' => $user,
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'This is your profile right now',
+                'data' => $user,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+                'data' => null,
+            ], 401);
+        }
     }
+
 
     public function refresh()
     {
@@ -91,7 +100,13 @@ class AuthController extends Controller
 
     public function logout()
     {
-        JWTAuth::invalidate(JWTAuth::getToken());
+        try {
+            if ($token = JWTAuth::getToken()) {
+                JWTAuth::invalidate($token);
+            }
+        } catch (\Exception $e) {
+            // token invalid / expired → ignore
+        }
 
         return response()->json([
             'success' => true,
@@ -99,4 +114,5 @@ class AuthController extends Controller
             'data' => null,
         ]);
     }
+
 }
