@@ -6,6 +6,7 @@ use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminBookingController extends Controller
 {
@@ -31,17 +32,28 @@ class AdminBookingController extends Controller
             ], 422);
         }
 
-        $booking->update([
-            'status' => BookingStatus::CONFIRMED,
-            'paid_at' => now(),
-            'confirmed_at' => now(),
-            'completed_at' => now(),
-        ]);
+        DB::transaction(function () use ($booking) {
+            $travel = $booking->travel()->lockForUpdate()->first();
+
+            if ($travel->quota < $booking->seats) {
+                abort(422, 'Not enough quota to confirm this booking');
+            }
+
+            $travel->update([
+                'quota' => $travel->quota - $booking->seats,
+            ]);
+
+            $booking->update([
+                'status' => BookingStatus::CONFIRMED->value,
+                'paid_at' => now(),
+                'confirmed_at' => now(),
+            ]);
+        });
 
         return response()->json([
             'success' => true,
             'message' => 'Booking confirmed',
-            'data' => $booking,
+            'data' => $booking->fresh('travel'),
         ]);
     }
 
