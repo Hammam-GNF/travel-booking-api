@@ -22,6 +22,7 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
     Route::get('/bookings', [AdminBookingController::class, 'index']);
     Route::put('/bookings/{booking}/confirm', [AdminBookingController::class, 'confirm']);
     Route::put('/bookings/{booking}/cancel', [AdminBookingController::class, 'cancel']);
+    Route::put('/bookings/{booking}/complete', [AdminBookingController::class, 'complete']);
 
     Route::post('/travels', [AdminTravelController::class, 'store']);
     Route::put('/travels/{travel}', [AdminTravelController::class, 'update']);

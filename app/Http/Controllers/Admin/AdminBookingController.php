@@ -81,4 +81,25 @@ class AdminBookingController extends Controller
         ]);
     }
 
+    public function complete(Booking $booking)
+    {
+        if ($booking->status !== BookingStatus::CONFIRMED->value) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only CONFIRMED booking can be completed',
+            ], 422);
+        }
+
+        $booking->update([
+            'status' => BookingStatus::COMPLETED->value,
+            'completed_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Booking completed',
+            'data' => $booking,
+        ]);
+    }
+
 }
