@@ -45,7 +45,6 @@ class AdminBookingController extends Controller
 
             $booking->update([
                 'status' => BookingStatus::CONFIRMED->value,
-                'paid_at' => now(),
                 'confirmed_at' => now(),
             ]);
         });
@@ -61,12 +60,13 @@ class AdminBookingController extends Controller
     public function cancel(Booking $booking)
     {
         if (in_array($booking->status, [
+            BookingStatus::PAID->value,
             BookingStatus::CONFIRMED->value,
             BookingStatus::COMPLETED->value,
         ])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Confirmed or completed booking cannot be cancelled',
+                'message' => 'Only PENDING booking can be cancelled',
             ], 422);
         }
 
