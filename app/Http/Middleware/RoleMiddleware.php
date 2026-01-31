@@ -25,7 +25,15 @@ class RoleMiddleware
             ], 401);
         }
 
-        if (! in_array($user->role, $roles)) {
+        if (method_exists($user, 'isInactive') && $user->isInactive()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account inactive',
+                'errors' => [],
+            ], 403);
+        }
+
+        if (! in_array($user->role, $roles, true)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Forbidden',
