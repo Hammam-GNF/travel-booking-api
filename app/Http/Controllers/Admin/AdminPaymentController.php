@@ -7,6 +7,7 @@ use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminPaymentController extends Controller
 {
@@ -19,15 +20,24 @@ class AdminPaymentController extends Controller
             ], 422);
         }
 
-        $payment->update([
-            'status' => PaymentStatus::VERIFIED->value,
-            'verified_by' => $request->user()->id,
-            'verified_at' => now(),
-        ]);
+        if ($payment->booking->status !== BookingStatus::PENDING_PAYMENT->value) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Booking is not awaiting payment',
+            ], 422);
+        }
 
-        $payment->booking->update([
-            'status' => BookingStatus::PAID->value,
-        ]);
+        DB::transaction(function () use ($payment, $request) {
+            $payment->update([
+                'status' => PaymentStatus::VERIFIED->value,
+                'verified_by' => $request->user()->id,
+                'verified_at' => now(),
+            ]);
+
+            $payment->booking->update([
+                'status' => BookingStatus::PAID->value,
+            ]);
+        });
 
         return response()->json([
             'success' => true,
